@@ -23,22 +23,43 @@ This project is designed to demonstrate SQL skills and techniques typically used
 - **Table Creation**: A table named `retail_sales` is created to store the sales data. The table structure includes columns for transaction ID, sale date, sale time, customer ID, gender, age, product category, quantity sold, price per unit, cost of goods sold (COGS), and total sale amount.
 
 ```sql
-CREATE DATABASE p1_retail_db;
+CREATE DATABASE Retail_sales;
 
-CREATE TABLE retail_sales
+CREATE TABLE sales
 (
-    transactions_id INT PRIMARY KEY,
-    sale_date DATE,	
-    sale_time TIME,
-    customer_id INT,	
-    gender VARCHAR(10),
-    age INT,
-    category VARCHAR(35),
-    quantity INT,
-    price_per_unit FLOAT,	
-    cogs FLOAT,
-    total_sale FLOAT
+     transactions_id INT PRIMARY KEY,
+    sale_date DATE DEFAULT NULL,
+    sale_time TIME DEFAULT NULL,
+    customer_id INT DEFAULT NULL,
+    gender VARCHAR(15) DEFAULT NULL,
+    age INT DEFAULT NULL,
+    category VARCHAR(30) DEFAULT NULL,
+    quantity INT DEFAULT NULL,
+    price_per_unit DOUBLE DEFAULT NULL,
+    cogs DOUBLE DEFAULT NULL,
+    total_sale DOUBLE DEFAULT NULL
 );
+```
+### 1.5 Faster Data importing technique
+```sql
+load data infile "K:\\Data analysis pandas\\SQL Project\\Retail Sales#1 Project\\Retail-Sales-Analysis-SQL-Project--P1-main\\sales.csv"
+into table sales
+fields terminated by ','
+lines terminated by '\r\n' -- if last column values are blank in csv file then use '/r/n'
+ignore 1 lines
+(transactions_id, @sale_date, sale_time, customer_id, gender, @age, category, @quantity, @price_per_unit, @cogs, @total_sale)
+SET
+    transactions_id = NULLIF(transactions_id, ''),
+    sale_date = IF(@sale_date = '', NULL, @sale_date),  -- Handles empty date
+    sale_time = NULLIF(sale_time, ''),
+    customer_id = NULLIF(customer_id, ''),
+    gender = NULLIF(gender, ''),
+    age = IF(@age = '', NULL, @age),  -- Convert empty age to NULL
+    category = NULLIF(category, ''),
+    quantity = IF(@quantity = '', NULL, @quantity),  -- Convert empty quantity to NULL
+    price_per_unit = IF(@price_per_unit = '', NULL, @price_per_unit),  -- Convert empty price_per_unit to NULL
+    cogs = IF(@cogs = '', NULL, @cogs),  -- Convert empty cogs to NULL
+    total_sale = IF(@total_sale = '', NULL, @total_sale);-- Convert empty total_sale to NULL
 ```
 
 ### 2. Data Exploration & Cleaning
@@ -46,7 +67,7 @@ CREATE TABLE retail_sales
 - **Record Count**: Determine the total number of records in the dataset.
 - **Customer Count**: Find out how many unique customers are in the dataset.
 - **Category Count**: Identify all unique product categories in the dataset.
-- **Null Value Check**: Check for any null values in the dataset and delete records with missing data.
+- **Null Value Check**: Check for any null values in the dataset and delete records with missing data.'''
 
 ```sql
 SELECT COUNT(*) FROM retail_sales;
